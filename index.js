@@ -55,8 +55,12 @@ let g_speed = 1000.0;
 
 let mousemoveCanvas = false;
 let animate = false;
+let specialAnimate = false;
 
 var stats = new Stats();
+
+var shiftHeld = false;
+var tabPressed = false;
 
 stats.dom.style.left = "auto";
 stats.dom.style.right = 0;
@@ -186,11 +190,13 @@ function addActionsFromHTML() {
 
   document.getElementById("animateButtonYes").addEventListener("click", function() {
     animate = true;
+    specialAnimate = false;
     renderScene();
   })
 
   document.getElementById("animateButtonNo").addEventListener("click", function() {
     animate = false;
+    specialAnimate = false;
     renderScene();
   })
 
@@ -208,6 +214,35 @@ function addActionsFromHTML() {
     g_speed = this.value;
     renderScene();
   })
+
+  // Get Shift Tab Click to work
+
+  canvas.addEventListener('keydown', function(event) {
+    if (event.key === "Shift") {
+        shiftHeld = true;
+    }
+    if (event.key === "Tab") {
+        tabPressed = true;
+        event.preventDefault();  // Prevent the default shift-tab behavior
+    }
+  });
+
+  canvas.addEventListener('keyup', function(event) {
+    if (event.key === "Shift") {
+        shiftHeld = false;
+    }
+    if (event.key === "Tab") {
+        tabPressed = false;
+    }
+  });
+
+  canvas.addEventListener('click', function(event) {
+      if (shiftHeld && tabPressed) {
+          console.log('Shift+Tab and click!');
+          specialAnimate = true;
+          animate = true;
+      }
+  });
 }
 
 function renderScene() {
@@ -220,7 +255,11 @@ function renderScene() {
   gl.uniformMatrix4fv(u_RotationMatrix, false, globalRot.elements);
 
   if(animate){
-    drawAnimation();
+    if(specialAnimate){
+      drawSpecialAnimation();
+    }else{
+      drawAnimation();
+    }
   }else{
     drawBody();
   }
@@ -236,6 +275,113 @@ function tick() {
   renderScene();
   stats.end();
   requestAnimationFrame(tick);
+}
+
+function drawSpecialAnimation() {
+  console.log("Animating but special lol");
+  const identityMatrix = new Matrix4();
+  identityMatrix.translate(0,.3,0);
+
+  // Create Torso
+  var torso = new Matrix4(identityMatrix);
+  //torso.rotate(g_torsoAngle, 0, 1, 0);
+  torso.scale(1.5,1.8,0.8);
+  drawCube(torso, light_green);
+
+  // Create Head
+  var head = new Matrix4(torso).scale(0.666, 0.555, 1.25);
+  //head.rotate(g_headAngle,0,1,0);
+  head.rotate(5 * Math.sin(g_seconds), 0, 1, 0);
+  head.translate(0, 0.36, 0);
+  drawCube(head, brown);
+
+  // Create Hair
+  var hair = new Matrix4(head);
+  hair.translate(0,0.15,0);
+  hair.scale(1,0.2,1);
+  drawCube(hair, black);
+
+  // Create Upper Right Arm
+  var Rarm = new Matrix4(torso).scale(0.666, 0.555, 1.25).translate(0.25, 0.16, 0); // Make the pivot point at the shoulder and reset the scale system
+  //Rarm.rotate(g_UpperRightArmAngle, 1, 0, 0);
+  //Rarm.rotate(10 * Math.sin(g_seconds) +55, 1, 0, 0);
+  Rarm.rotate(65 * Math.abs(Math.sin(g_seconds)) + 89, 0, 0, 1);
+  Rarm.translate(0, -0.1, 0);
+  Rarm.scale(0.5, 1, 0.5);
+  drawCube(Rarm, light_green);
+
+  // Create Lower Right Arm
+  var LRam = new Matrix4(Rarm).scale(2,1,2).translate(0, -0.15, 0);
+  //LRam.rotate(g_LowerRightArmAngle, 1, 0, 0);
+  //LRam.rotate(10 * Math.sin(g_seconds) + 55, 1, 0, 0);
+  LRam.rotate(65 * Math.abs(Math.sin(g_seconds)), 0, 0, 1);
+  LRam.translate(0, -0.11, 0);
+  LRam.scale(0.5, 1, 0.5);
+  drawCube(LRam, brown);
+
+  // Create Upper Left Arm
+  var Rarm = new Matrix4(torso).scale(0.666, 0.555, 1.25).translate(-0.25, 0.16, 0); // Make the pivot point at the shoulder and reset the scale system
+  //Rarm.rotate(g_UpperLeftArmAngle, 1, 0, 0);
+  //Rarm.rotate(10 * Math.cos(g_seconds) + 55, 1, 0, 0);
+  Rarm.rotate(-65 * Math.abs(Math.sin(g_seconds)) - 89, 0, 0, 1);
+  Rarm.translate(0, -0.1, 0);
+  Rarm.scale(0.5, 1, 0.5);
+  drawCube(Rarm, light_green);
+
+  // Create Lower Left Arm
+  var LRam = new Matrix4(Rarm).scale(2,1,2).translate(0, -0.15, 0);
+  //LRam.rotate(g_LowerLeftArmAngle, 1, 0, 0);
+  //LRam.rotate(10 * Math.cos(g_seconds) + 55, 1, 0, 0);
+  LRam.rotate(-65 * Math.abs(Math.sin(g_seconds)), 0, 0, 1);
+  LRam.translate(0, -0.11, 0);
+  LRam.scale(0.5, 1, 0.5);
+  drawCube(LRam, brown);
+
+  // Create Upper Right Leg
+  var URLeg = new Matrix4(torso).scale(0.666, 0.555, 1.25).translate(0, -0.22, 0);
+  //URLeg.rotate(g_UpperRightLegAngle, 1, 0, 0);
+  //URLeg.rotate(10 * Math.sin(g_seconds) + 35, 1, 0, 0);
+  URLeg.rotate(45 * Math.abs(Math.sin(g_seconds)), 0, 0, 1);
+  URLeg.translate(0.1, -0.15, 0);
+  URLeg.scale(0.5, 1.15, 0.5);
+  drawCube(URLeg, navy);
+  
+  // Create Lower Right Leg
+  var LRLeg = new Matrix4(URLeg).scale(2,0.83,2).translate(0, -0.15, 0);
+  //LRLeg.rotate(-g_LowerRightLegAngle, 1, 0, 0);
+  //LRLeg.rotate(10 * Math.sin(g_seconds) - 35, 1, 0, 0);
+  LRLeg.translate(0, -0.15, 0);
+  LRLeg.scale(0.5, 1.1, 0.5);
+  drawCube(LRLeg, brown);
+
+  var RFoot = new Matrix4(LRLeg).scale(2,0.909,2);
+  //RFoot.rotate(g_RFootAngle, 1, 0, 0);
+  RFoot.translate(0, -0.17, 0);
+  RFoot.scale(0.5, 0.2, 0.5);
+  drawCube(RFoot, black);
+  
+  // Create Upper Left Leg
+  var URLeg = new Matrix4(torso).scale(0.666, 0.555, 1.25).translate(0, -0.22, 0);
+  //URLeg.rotate(g_UpperLeftLegAngle, 1, 0, 0);
+  //URLeg.rotate(10 * Math.cos(g_seconds) + 35, 1, 0, 0);
+  URLeg.rotate(-45 * Math.abs(Math.sin(g_seconds)), 0, 0, 1);
+  URLeg.translate(-0.1, -0.15, 0);
+  URLeg.scale(0.5, 1.15, 0.5);
+  drawCube(URLeg, navy);
+  
+  // Create Lower Left Leg
+  var LRLeg = new Matrix4(URLeg).scale(2,0.83,2).translate(0, -0.15, 0);
+  //LRLeg.rotate(-g_LowerLeftLegAngle, 1, 0, 0);
+  //LRLeg.rotate(10 * Math.cos(g_seconds) - 35, 1, 0, 0);
+  LRLeg.translate(0, -0.15, 0);
+  LRLeg.scale(0.5, 1.1, 0.5);
+  drawCube(LRLeg, brown);
+
+  var LFoot = new Matrix4(LRLeg).scale(2,0.909,2);
+  //LFoot.rotate(g_LFootAngle, 1, 0, 0);
+  LFoot.translate(0, -0.17, 0);
+  LFoot.scale(0.5, 0.2, 0.5);
+  drawCube(LFoot, black);
 }
 
 function drawAnimation() {

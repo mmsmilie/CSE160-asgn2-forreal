@@ -16,10 +16,11 @@
 
 <body>
   <div class="container">
-    <canvas id="webgl" width="500" height="500"></canvas>
+    <canvas id="webgl" width="500" height="500" tabindex="0"></canvas>
     <div class="controls">
       <h5>Click to Rotate or Use this Slider</h5>
       Camera Angle:<input type = "range" min = "0" max = "360" value = "0" id = "angleSlide">
+      Reset this back to zero if you want to use mouse rotation.
       <br>
       Torso Rotation:<input type = "range" min = "0" max = "360" value = "180" id = "torsoSlide">
       Head Rotation:<input type = "range" min = "0" max = "360" value = "180" id = "headSlide">
