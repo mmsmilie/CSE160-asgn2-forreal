@@ -1,5 +1,5 @@
-import { initShaders } from "../cuon-utils.js";
-import { Matrix4 } from "../cuon-matrix.js";
+import { initShaders } from "cuon-utils.js";
+import { Matrix4 } from "cuon-matrix.js";
 import Stats from 'https://cdnjs.cloudflare.com/ajax/libs/stats.js/17/Stats.js'
 
 // Vertex shader program
