@@ -1,5 +1,5 @@
-import { WebGLUtils } from '../lib/webgl-utils.js';
-import { WebGLDebugUtils } from '../lib/webgl-debug.js';
+import { WebGLUtils } from '../webgl-utils.js';
+import { WebGLDebugUtils } from '../webgl-debug.js';
 
 // cuon-utils.js (c) 2012 kanda and matsuda
 /**
